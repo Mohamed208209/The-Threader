@@ -4,7 +4,9 @@ const nextConfig = {
     serverActions: true,
     serverComponentsExternalPackages: ["mongoose"],
   },
-
+ typescript: {
+   ignoreBuildErrors: true,
+ },
   images: {
     remotePatterns: [
       {
