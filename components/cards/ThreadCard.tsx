@@ -1,3 +1,4 @@
+import { formatDateString } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -18,7 +19,7 @@ type ThreadCardProps = {
 
     community:{
         id:string,
-        name:string,
+        communityname:string,
         imageurl:string} | null,
 
     createdAt:string,
@@ -83,6 +84,22 @@ export const ThreadCard = ({
           </div>
           </div>
          </div>
+         {/* TODO: DeleteThread */}
+         {/* TODO: Show comment Logos */}
+         {!isComment && community && (
+           <Link href={`/community/${community.id}`} className="mt-4 flex items-center">
+            <p className="text-subtitle text-subtle-medium">
+              {formatDateString(createdAt)} - {community.communityname}
+            </p>
+            <Image
+             src={community.imageurl}
+             alt={community.communityname}
+             width={14}
+             height={14}
+             className="ml-1 rounded-full object-cover"
+             />
+           </Link>
+         )}
         </div>
      
     </article>

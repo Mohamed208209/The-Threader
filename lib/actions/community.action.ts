@@ -10,8 +10,9 @@ import { connectToDB } from "../mongoose";
 
 export async function createCommunity(
   id: string,
-  communityname: string,
-  imageurl: string,
+  name: string,
+  username: string,
+  image: string,
   bio: string,
   createdById: string 
 ) {
@@ -23,11 +24,12 @@ export async function createCommunity(
     if (!user) {
       throw new Error("User not found"); 
     }
-
+console.log("look here seriously",id,name,username,image,bio,user._id);
     const newCommunity = new Community({
       id,
-      communityname,
-      imageurl,
+      name,
+      username,
+      image,
       bio,
       createdBy: user._id, 
     });
@@ -117,7 +119,7 @@ export async function fetchCommunities({
 
     if (searchString.trim() !== "") {
       query.$or = [
-        { communityname: { $regex: regex } }
+        { name: { $regex: regex } }
       ];
     }
 
@@ -218,15 +220,15 @@ export async function removeUserFromCommunity(
 
 export async function updateCommunityInfo(
   communityId: string,
-  communityname: string,
-  imageurl: string
+  name: string,
+  imageUrl: string
 ) {
   try {
     connectToDB();
 
     const updatedCommunity = await Community.findOneAndUpdate(
       { id: communityId },
-      { communityname,  imageurl }
+      { name,  imageUrl }
     );
 
     if (!updatedCommunity) {

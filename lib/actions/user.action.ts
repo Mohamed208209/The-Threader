@@ -5,6 +5,7 @@ import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
+import Community from "../models/community.model";
 type UpdateUserProps = {
   userId: string;
   username: string;
@@ -44,14 +45,11 @@ export const UpdateUser = async (user: UpdateUserProps) => {
 export const fetchUser = async(userId: string) => {
 try{
   connectToDB();
-  return await User.findOne({ id: userId});
-    
-
-  
-  // .populate({
-  //   path:"communities",
-  //   model:"Community"
-  // })
+  return await User.findOne({ id: userId})
+  .populate({
+    path:"communities",
+    model:Community
+  })
 }catch(error:any){
   throw new Error(`Error fetching user: ${error.message}`);
 }
@@ -64,15 +62,21 @@ export const fetchUserThreads = async(userId: string) => {
     .populate({
       path: "threads",
       model: Thread,
-      populate: {
-        path:"children",
+      populate: [
+        {
+          path:"community",
+          model: Community,
+          select: "_id id name imageUrl"
+        },
+        { path:"children",
         model: Thread,
         populate: {
           path: "author",
           model: User,
           select: " id username imageurl"
-        }
-      }
+        }}
+       
+      ]
     });
     return threads
   } catch (error: any) {

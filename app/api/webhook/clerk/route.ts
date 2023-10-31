@@ -13,7 +13,8 @@ import {
   updateCommunityInfo,
 } from "@/lib/actions/community.action";
 
-
+// Resource: https://clerk.com/docs/integration/webhooks#supported-events
+// Above document lists the supported events
 type EventType =
   | "organization.created"
   | "organizationInvitation.created"
@@ -38,7 +39,8 @@ export const POST = async (request: Request) => {
     "svix-signature": header.get("svix-signature"),
   };
 
- 
+  // Activitate Webhook in the Clerk Dashboard.
+  // After adding the endpoint, you'll see the secret on the right side.
   const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET || "");
 
   let evnt: Event | null = null;
@@ -54,19 +56,22 @@ export const POST = async (request: Request) => {
 
   const eventType: EventType = evnt?.type!;
 
+  // Listen organization creation event
   if (eventType === "organization.created") {
-   
-    const { id, communityname, slug, logo_url, imageurl, created_by } =
+    // Resource: https://clerk.com/docs/reference/backend-api/tag/Organizations#operation/CreateOrganization
+    // Show what evnt?.data sends from above resource
+    const { id, name, slug, logo_url, image_url, created_by } =
       evnt?.data ?? {};
+      console.log("route.ts is working fine", id, name, slug, logo_url, image_url, created_by);
 
     try {
       // @ts-ignore
       await createCommunity(
         // @ts-ignore
         id,
-        communityname,
+        name,
         slug,
-        logo_url || imageurl,
+        logo_url || image_url,
         "org bio",
         created_by
       );

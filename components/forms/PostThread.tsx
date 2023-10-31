@@ -22,6 +22,7 @@ import { usePathname, useRouter } from "next/navigation";
 // import { UpdateUser } from "@/lib/actions/user.action";
 import { threadSchema } from "@/lib/validators/thread";
 import { createThread } from "@/lib/actions/thread.action";
+import { useOrganization } from "@clerk/nextjs";
 
 type PostThreadProps = {
   userId:string;
@@ -37,6 +38,7 @@ export type userForm = zod.infer<typeof threadSchema>;
 export const PostThread = ({userId:notParsedUserId}:PostThreadProps) => {
   const userId = JSON.parse(notParsedUserId);
   const router = useRouter();
+  const {organization} = useOrganization();
   const pathName = usePathname();
   const form = useForm({
     resolver: zodResolver(threadSchema),
@@ -47,10 +49,11 @@ export const PostThread = ({userId:notParsedUserId}:PostThreadProps) => {
   });
 
    const onSubmit =async (values:zod.infer<typeof threadSchema>) => {
+    console.log( "look here",organization);
      await createThread({
       text:values.thread,
       author:userId,
-      communityId:null,
+      communityId:organization? organization.id : null,
       path:pathName
      });
      router.push("/");

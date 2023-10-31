@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
+import Community from "../models/community.model";
 
 type Params = {
     text: string;
@@ -12,13 +13,24 @@ type Params = {
 }
 export const createThread = async (params: Params) => {
     const { text, author, communityId, path } = params;
+    console.log(communityId)
+
     try{
         connectToDB();
+        const communityIdObject = await Community.findOne(
+            {id:communityId},
+            {_id:1}
+        )
         const createdThread = await Thread.create({
             text,
             author,
-            community:null
+            community:communityId
         });
+        if (communityIdObject){
+            await Community.findByIdAndUpdate(communityIdObject,{
+                $push:{threads:createdThread._id}
+            })
+        }
     
       await User.findByIdAndUpdate(author,{
         $push:{threads:createdThread._id}
@@ -40,6 +52,7 @@ export const fetchThreads = async (pageNumber=1, pageSize=20) => {
         .skip(skip)
         .limit(pageSize)
         .populate({path:"author", model:User})
+        .populate({path:"community",model:Community})
         .populate({
             path:"children",
             populate:{
@@ -65,10 +78,10 @@ export const fetchThreads = async (pageNumber=1, pageSize=20) => {
 
 export const fetchOneThread = async (id:string) => {
     try{
-        // TODO : populate Community
         connectToDB();
         const thread = await Thread.findById(id)
         .populate({path:"author", model:User, select:"_id id username  imageurl"})
+        .populate({path:"community",model:Community, select:"_id id name imageUrl"})
         .populate({
             path:"children",
             populate:[
