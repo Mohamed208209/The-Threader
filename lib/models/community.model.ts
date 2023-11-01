@@ -4,17 +4,12 @@ const communitySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-  },
   name: {
     type: String,
     required: true,
   },
-  image: String,
-  bio: String,
+  imageurl: String,
+  description: String,
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -28,6 +23,7 @@ const communitySchema = new mongoose.Schema({
   members: [
     {
       type: mongoose.Schema.Types.ObjectId,
+      role: "member"||"admin",
       ref: "User",
     },
   ],

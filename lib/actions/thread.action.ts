@@ -124,3 +124,70 @@ export const commentOnThread = async (threadId:string,userId:string ,commentText
         throw new Error(`Error commenting on thread: ${error.message}`);
     }
 }
+
+
+export const fetchAllChildThreads = async (threadId:string): Promise<any[]> => {
+    const childThreads = await Thread.find({parentId:threadId});
+    const descendantThreads = []
+    for (const childThread of childThreads) {
+        const descendants = await fetchAllChildThreads(childThread._id);
+        descendantThreads.push(childThread, ...descendants);
+    }
+    return descendantThreads
+}
+
+
+
+
+export const deleteThread= async (id: string, path: string): Promise<void> => {
+  try {
+    connectToDB();
+
+    const mainThread = await Thread.findById(id).populate("author community");
+
+    if (!mainThread) {
+      throw new Error("Thread not found");
+    }
+
+    const descendantThreads = await fetchAllChildThreads(id);
+
+   
+    const descendantThreadIds = [
+      id,
+      ...descendantThreads.map((thread) => thread._id),
+    ];
+
+ 
+    const uniqueAuthorIds = new Set(
+      [
+        ...descendantThreads.map((thread) => thread.author?._id?.toString()), 
+        mainThread.author?._id?.toString(),
+      ].filter((id) => id !== undefined)
+    );
+
+    const uniqueCommunityIds = new Set(
+      [
+        ...descendantThreads.map((thread) => thread.community?._id?.toString()),
+      ].filter((id) => id !== undefined)
+    );
+
+    // Recursively delete child threads and their descendants
+    await Thread.deleteMany({ _id: { $in: descendantThreadIds } });
+
+    // Update User model
+    await User.updateMany(
+      { _id: { $in: Array.from(uniqueAuthorIds) } },
+      { $pull: { threads: { $in: descendantThreadIds } } }
+    );
+
+    // Update Community model
+    await Community.updateMany(
+      { _id: { $in: Array.from(uniqueCommunityIds) } },
+      { $pull: { threads: { $in: descendantThreadIds } } }
+    );
+
+    revalidatePath(path);
+  } catch (error: any) {
+    throw new Error(`Failed to delete thread: ${error.message}`);
+  }
+}

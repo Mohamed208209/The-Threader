@@ -11,9 +11,8 @@ import { connectToDB } from "../mongoose";
 export async function createCommunity(
   id: string,
   name: string,
-  username: string,
-  image: string,
-  bio: string,
+  imageurl: string,
+  description: string,
   createdById: string 
 ) {
   try {
@@ -24,13 +23,11 @@ export async function createCommunity(
     if (!user) {
       throw new Error("User not found"); 
     }
-console.log("look here seriously",id,name,username,image,bio,user._id);
     const newCommunity = new Community({
       id,
       name,
-      username,
-      image,
-      bio,
+      imageurl,
+      description,
       createdBy: user._id, 
     });
 

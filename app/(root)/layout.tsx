@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TopBar,BottomBar,LeftSideBar,RightSideBar } from "@/components/shared";

@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     communities: [
         {
             type: mongoose.Schema.Types.ObjectId,
+            role: "member"||"admin",
             ref: "Community",
         },
     ],
