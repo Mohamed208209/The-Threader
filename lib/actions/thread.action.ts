@@ -13,7 +13,6 @@ type Params = {
 }
 export const createThread = async (params: Params) => {
     const { text, author, communityId, path } = params;
-    console.log(communityId)
 
     try{
         connectToDB();

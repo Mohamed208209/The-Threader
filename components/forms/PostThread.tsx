@@ -49,7 +49,6 @@ export const PostThread = ({userId:notParsedUserId}:PostThreadProps) => {
   });
 
    const onSubmit =async (values:zod.infer<typeof threadSchema>) => {
-    console.log( "look here",organization);
      await createThread({
       text:values.thread,
       author:userId,

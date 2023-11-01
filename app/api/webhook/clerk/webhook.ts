@@ -1,6 +1,10 @@
+/* eslint-disable camelcase */
+// Resource: https://clerk.com/docs/users/sync-data-to-your-backend
+// Above article shows why we need webhooks i.e., to sync data to our backend
 
+// Resource: https://docs.svix.com/receiving/verifying-payloads/why
+// It's a good practice to verify webhooks. Above article shows why we should do it
 import { Webhook, WebhookRequiredHeaders } from "svix";
-import { headers } from "next/headers";
 
 import { IncomingHttpHeaders } from "http";
 
@@ -31,7 +35,7 @@ type Event = {
 
 export const POST = async (request: Request) => {
   const payload = await request.json();
-  const header = headers();
+  const header = request.headers;
 
   const heads = {
     "svix-id": header.get("svix-id"),
@@ -60,9 +64,8 @@ export const POST = async (request: Request) => {
   if (eventType === "organization.created") {
     // Resource: https://clerk.com/docs/reference/backend-api/tag/Organizations#operation/CreateOrganization
     // Show what evnt?.data sends from above resource
-    const { id, name, slug, logo_url, image_url, created_by } =
+    const { id, name, slug, logo_url, image_url, created_by,bio } =
       evnt?.data ?? {};
-      console.log("route.ts is working fine", id, name, slug, logo_url, image_url, created_by);
 
     try {
       // @ts-ignore
